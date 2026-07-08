@@ -199,9 +199,26 @@ def _slugify(value: str) -> str:
     return slug or "last30days"
 
 
+def _next_available_save_path(out_path):
+    from datetime import datetime
+
+    if not out_path.exists():
+        return out_path
+    dated = out_path.with_name(
+        f"{out_path.stem}-{datetime.now().strftime('%Y-%m-%d')}{out_path.suffix}"
+    )
+    if not dated.exists():
+        return dated
+    counter = 2
+    while True:
+        candidate = dated.with_name(f"{dated.stem}-{counter}{dated.suffix}")
+        if not candidate.exists():
+            return candidate
+        counter += 1
+
+
 def _save_output(topic: str, content: str, emit: str, save_dir: str, suffix: str):
     """Mirror local save_output() naming: <slug>-raw[-suffix].<ext>."""
-    from datetime import datetime
     from pathlib import Path
 
     path = Path(save_dir).expanduser().resolve()
@@ -210,8 +227,7 @@ def _save_output(topic: str, content: str, emit: str, save_dir: str, suffix: str
     extension = "json" if emit == "json" else "md"
     suffix_part = f"-{suffix}" if suffix else ""
     out_path = path / f"{slug}-raw{suffix_part}.{extension}"
-    if out_path.exists():
-        out_path = path / f"{slug}-raw{suffix_part}-{datetime.now().strftime('%Y-%m-%d')}.{extension}"
+    out_path = _next_available_save_path(out_path)
     out_path.write_text(content, encoding="utf-8")
     return out_path
 

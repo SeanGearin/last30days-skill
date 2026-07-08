@@ -120,6 +120,24 @@ def slugify(value: str) -> str:
     return slug or "last30days"
 
 
+def _next_available_save_path(out_path: Path) -> Path:
+    from datetime import datetime
+
+    if not out_path.exists():
+        return out_path
+    dated = out_path.with_name(
+        f"{out_path.stem}-{datetime.now().strftime('%Y-%m-%d')}{out_path.suffix}"
+    )
+    if not dated.exists():
+        return dated
+    counter = 2
+    while True:
+        candidate = dated.with_name(f"{dated.stem}-{counter}{dated.suffix}")
+        if not candidate.exists():
+            return candidate
+        counter += 1
+
+
 def save_output(
     report: schema.Report,
     emit: str,
@@ -129,7 +147,6 @@ def save_output(
     topic_override: str | None = None,
     rendered_content: str | None = None,
 ) -> Path:
-    from datetime import datetime
     path = Path(save_dir).expanduser().resolve()
     path.mkdir(parents=True, exist_ok=True)
     slug = slugify(topic_override or report.topic)
@@ -137,8 +154,7 @@ def save_output(
     raw_label = "raw-html" if emit == "html" else "raw"
     suffix_part = f"-{suffix}" if suffix else ""
     out_path = path / f"{slug}-{raw_label}{suffix_part}.{extension}"
-    if out_path.exists():
-        out_path = path / f"{slug}-{raw_label}{suffix_part}-{datetime.now().strftime('%Y-%m-%d')}.{extension}"
+    out_path = _next_available_save_path(out_path)
     # Markdown saves keep the complete debug artifact. JSON and HTML preserve
     # their requested wire format so file extensions match their content.
     if rendered_content is not None:
