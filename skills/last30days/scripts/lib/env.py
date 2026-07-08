@@ -454,6 +454,7 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
         ('LAST30DAYS_REDDIT_BACKEND', None),
         # Doctor cache freshness window in seconds (doctor --cached).
         ('LAST30DAYS_DOCTOR_TTL', None),
+        ('LAST30DAYS_REPORT_CACHE_TTL_SECONDS', '3600'),
         ('LAST30DAYS_REDDIT_SC_MIN_ITEMS', None),
         ('LAST30DAYS_STORE', None),
         ('LAST30DAYS_MEMORY_DIR', None),
@@ -501,6 +502,7 @@ def get_config(policy: ConfigLoadPolicy | None = None) -> dict[str, Any]:
         ('SETUP_COMPLETE', None),
         ('INCLUDE_SOURCES', ''),
         ('EXCLUDE_SOURCES', ''),
+        ('FUN_LEVEL', 'medium'),
         ('LAST30DAYS_DEFAULT_SEARCH', ''),
         ('LAST30DAYS_YOUTUBE_SSH_HOST', None),
         ('LAST30DAYS_TRANSCRIPT_TIMEOUT', None),
